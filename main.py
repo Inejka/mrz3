@@ -1,16 +1,5 @@
-# This is a sample Python script.
+import simplifyied_network
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+net = simplifyied_network.network(1, 5, 1, 5e-2)
+#net.train([[1,1],[1,2],[2,3],[3,4],[5,5],[8,6],[13,7],[21,8],[34,9],[55,10],[89,11]],144)
+net.train([1, 2, 4, 8, 16, 32, 64], 128)
