@@ -9,6 +9,17 @@ def dactivation(x):
     return 1.0 / np.sqrt(1 + x ** 2)
 
 
+T = 1
+
+
+def norm_error(error):
+    norm = np.sqrt(np.sum(np.square(error)))
+    if T < norm:
+        return error * T / norm
+    else:
+        return error
+
+
 class network:
     class net_tick:
         def __init__(self, W_IH, W_HH, W_HI):
@@ -59,7 +70,7 @@ class network:
     def train(self, input, output):
         size = len(input)
         self.create_net(size)
-        for k in range(1000):
+        for k in range(100):
             net_output = self.forward(input)
             error = (output - net_output) ** 2
             self.backwards(size - 1, error)
@@ -67,17 +78,21 @@ class network:
         for i in range(size):
             print(self.unfolded_net[i].W_IH.sum())
 
-
     def forward(self, input):
         ans = []
         for i in range(len(input)):
             ans = self.unfolded_net[i].forward(np.array(input[i], ndmin=2).T, self.get_context(i))
+        self.output = ans
         return ans
+
+    def gen_next(self):
+        return self.forward(self.output)
 
     def backwards(self, size, init_error):
         delta_HI = self.learning_rate / 1000000.0 * init_error @ \
                    self.unfolded_net[size].hidden_output.T
         hidden_error = self.unfolded_net[size].W_HI.T @ init_error
+        hidden_error = norm_error(hidden_error)
         self.unfolded_net[size].W_HI += delta_HI
         for j in range(size, -1, -1):
             delta_HH = self.learning_rate * hidden_error * dactivation(self.unfolded_net[j].hidden_input_total) @ \
@@ -85,5 +100,6 @@ class network:
             delta_IH = self.learning_rate * hidden_error * dactivation(self.unfolded_net[j].hidden_input_total) @ \
                        self.unfolded_net[j].input.T
             hidden_error = self.unfolded_net[j - 1].W_HH.T @ hidden_error
+            hidden_error = norm_error(hidden_error)
             self.unfolded_net[j].W_IH += delta_IH
             self.unfolded_net[j].W_HH += delta_HH
